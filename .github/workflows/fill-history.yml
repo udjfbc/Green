@@ -2,8 +2,7 @@ name: Fill History (Daily Auto + Manual Batch)
 
 on:
   schedule:
-    # 每天 UTC 20:00 运行（北京时间次日 4:00）
-    - cron: '0 20 * * *'
+    - cron: '0 20 * * *'          # 每天 UTC 20:00（北京时间 4:00）
   workflow_dispatch:
     inputs:
       start_date:
@@ -29,8 +28,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.email "oxxxxlin@gmail.com"
-          git config --global user.name "oxxxxlin"
+          git config --global user.email "q2045566568@163.com"      # 替换为你的 GitHub 验证邮箱
+          git config --global user.name "udjfbc"     # 替换为你的 GitHub 用户名
 
       - name: Generate commits
         env:
@@ -38,11 +37,10 @@ jobs:
           END_DATE: ${{ github.event.inputs.end_date }}
           DAILY_COMMITS: ${{ github.event.inputs.daily_commits }}
         run: |
-          # 判断触发方式
           if [ "${{ github.event_name }}" == "schedule" ]; then
             # 定时触发：生成今天提交
             TODAY=$(date +%Y-%m-%d)
-            COMMITS_PER_DAY=12   # 每天提交次数，可按需修改
+            COMMITS_PER_DAY=12
             echo "Daily run: generating $COMMITS_PER_DAY commits for $TODAY"
             for i in $(seq 1 $COMMITS_PER_DAY); do
               git commit --allow-empty -m "daily fill #$i on $TODAY"
@@ -67,9 +65,7 @@ jobs:
       - name: Push commits
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            # 定时任务：普通推送（追加）
-            git push origin HEAD
+            git push origin HEAD          # 定时任务：普通推送
           else
-            # 手动任务：强制推送（覆盖历史）
-            git push --force origin HEAD
+            git push --force origin HEAD  # 手动任务：强制推送（覆盖历史）
           fi
